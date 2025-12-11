@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # encoding: utf-8
 
 # Source code preprocessor for KACTL building process.
@@ -98,13 +98,19 @@ def processwithcomments(caption, instream, outstream, listingslang = None):
             if line: line += ' '
             line += "// %s-%d" % (hash_script, hash_num)
 
-        if cur_hash is not None: cur_hash.append(line)
+        if cur_hash is not None:
+            cur_hash.append(line)
 
         if had_comment and tail == "end-hash":
             cur_hash = '\n'.join(cur_hash)
-            p = subprocess.Popen(['sh', '../content/contest/%s.sh' % hash_script], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            hsh, _ = p.communicate(cur_hash)
-            hsh = hsh.split(None, 1)[0]
+            p = subprocess.Popen(
+                ['sh', '../content/contest/%s.sh' % hash_script],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE
+            )
+            # Python 3: send bytes, get bytes, then decode
+            hsh_bytes, _ = p.communicate(cur_hash.encode('utf-8'))
+            hsh = hsh_bytes.decode('utf-8', errors='ignore').split(None, 1)[0]
             if line: line += ' '
             line += "// %s-%d = %s" % (hash_script, hash_num, hsh)
             cur_hash = None
@@ -113,12 +119,18 @@ def processwithcomments(caption, instream, outstream, listingslang = None):
 
     if hash_num == 0 and hash_script == 'hash-cpp':
         # Automatically hash the whole file if no hashes are specified
-        p = subprocess.Popen(['sh', '../content/contest/%s.sh' % hash_script], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        hsh, _ = p.communicate('\n'.join(nlines))
-        hsh = hsh.split(None, 1)[0]
+        p = subprocess.Popen(
+            ['sh', '../content/contest/%s.sh' % hash_script],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE
+        )
+        all_source = '\n'.join(nlines)
+        hsh_bytes, _ = p.communicate(all_source.encode('utf-8'))
+        hsh = hsh_bytes.decode('utf-8', errors='ignore').split(None, 1)[0]
         if len(nlines[-1]) > 5:
             nlines.append('')
-        if nlines[-1]: nlines[-1] += ' '
+        if nlines[-1]:
+            nlines[-1] += ' '
         nlines[-1] += "// %s-all = %s" % (hash_script, hsh)
 
     # Remove and process /** */ comments
@@ -203,7 +215,8 @@ def processraw(caption, instream, outstream, listingslang = 'raw'):
         print(source, file=outstream)
         print(r"\end{lstlisting}", file=outstream)
     except:
-        print("\kactlerror{Could not read source.}", file=outstream)
+        # Python 3: make this a raw string to avoid invalid escape warning
+        print(r"\kactlerror{Could not read source.}", file=outstream)
 
 def isinclude(line):
     line = line.strip()
