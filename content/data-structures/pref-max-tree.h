@@ -1,3 +1,16 @@
+/**
+ * Author: Almansur
+ * Date: 2025-11-12
+ * License: BIL
+ * Source: AITU
+ * Status: Tested at AITU
+ * Description: prefix max tree
+ * max cheta tam 
+ * Usage:
+ *  aboba
+ *  skibidi
+ * Time: $O(|V| \log |V| + Q)$
+ */
 struct pref_max_tree {
     ll t[N << 2];
     ll mx[N << 2];
