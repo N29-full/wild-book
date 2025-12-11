@@ -15,11 +15,7 @@ jobs:
 
       - name: Install dependencies (LaTeX, g++, make)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            texlive-latex-base texlive-latex-extra texlive-fonts-recommended \
-            texlive-lang-european latexmk \
-            build-essential
+          sudo apt-get install texlive-latex-base texlive-latex-recommended texlive-latex-extra
 
       - name: Build kactl.pdf
         run: |
